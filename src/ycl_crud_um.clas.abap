@@ -68,10 +68,13 @@ CLASS ycl_crud_um DEFINITION
 *   Data Declaration
 **********************************************************************
     CLASS-DATA :
-      lo_api     TYPE REF TO   ycl_crud_um,
-      gt_header  TYPE TABLE OF yheader_db,
-      gt_item    TYPE TABLE OF yitem_db,
-      gt_subitem TYPE TABLE OF ysubitem_db.
+      lo_api      TYPE REF TO   ycl_crud_um,
+      gt_header   TYPE TABLE OF yheader_db,
+      gt_item     TYPE TABLE OF yitem_db,
+      gt_subitem  TYPE TABLE OF ysubitem_db,
+      gt_dheader  TYPE TABLE OF yheader_db,
+      gt_ditem    TYPE TABLE OF yitem_db,
+      gt_dsubitem TYPE TABLE OF ysubitem_db.
 ENDCLASS.
 
 
@@ -103,6 +106,7 @@ CLASS ycl_crud_um IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD delete.        "Header Delete
+    SELECT * FROM yheader_db FOR ALL ENTRIES IN @keys WHERE mblnr = @keys-MaterialDocument AND mjahr = @keys-DocumentYear INTO TABLE @gt_dheader.
 
   ENDMETHOD.
 
@@ -122,9 +126,9 @@ CLASS ycl_crud_um IMPLEMENTATION.
 
   METHOD save.                  "Save Saver
     DATA :
-      mblnr  TYPE YMBLNR_DE,
-      mjahr  TYPE YMJAHR_DE,
-      return TYPE YBAPIRET2.
+      mblnr  TYPE ymblnr_de,
+      mjahr  TYPE ymjahr_de,
+      return TYPE ybapiret2.
     IF gt_header  IS NOT INITIAL.
       CALL FUNCTION 'YGOODS_MVMNT_FM'
         EXPORTING
@@ -134,7 +138,7 @@ CLASS ycl_crud_um IMPLEMENTATION.
           mblnr  = mblnr
           mjahr  = mjahr
           return = return.
-    ENDIF.
+
 
     APPEND VALUE #( materialdocument = mblnr
                     documentyear     = mjahr
@@ -143,6 +147,16 @@ CLASS ycl_crud_um IMPLEMENTATION.
                                                                                                  ELSE if_abap_behv_message=>severity-success )
                                                                               text     = return[ 1 ]-message )
                     ) TO reported-headerbd.
+    ENDIF.
+
+    IF gt_dheader IS NOT INITIAL.
+      DELETE yheader_db FROM TABLE @gt_dheader.
+      IF sy-subrc IS INITIAL.
+        DATA(lv_msg) = lcl_message=>get_instance( )->message( severity = if_abap_behv_message=>severity-success
+                                                              text     = 'Record deleted Successfully' ).
+        APPEND lv_msg TO reported-%other.
+      ENDIF.
+    ENDIF.
   ENDMETHOD.
 
 
