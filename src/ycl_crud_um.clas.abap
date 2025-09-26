@@ -106,12 +106,87 @@ CLASS ycl_crud_um IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD delete.        "Header Delete
-    SELECT * FROM yheader_db FOR ALL ENTRIES IN @keys WHERE mblnr = @keys-MaterialDocument AND mjahr = @keys-DocumentYear INTO TABLE @gt_dheader.
+    "When Multiple entries are available in Keys
+    READ ENTITIES OF yheader_r
+    ENTITY HeaderBD
+    ALL FIELDS WITH VALUE #( FOR ls_keys IN keys ( MaterialDocument = ls_keys-MaterialDocument
+                                                   DocumentYear     = ls_keys-DocumentYear ) )
+    RESULT DATA(lt_result1).
 
+    READ ENTITIES OF yheader_r
+    ENTITY HeaderBD
+    ALL FIELDS WITH VALUE #( FOR ls_keys IN keys ( %tky-MaterialDocument = ls_keys-MaterialDocument
+                                                   %tky-DocumentYear     = ls_keys-DocumentYear ) )
+    RESULT DATA(lt_result2).
+
+    READ ENTITIES OF yheader_r
+    ENTITY HeaderBD
+    ALL FIELDS WITH VALUE #( FOR ls_keys IN keys ( %tky = ls_keys-%tky ) )
+    RESULT DATA(lt_result3).
+
+    "When single entry is available in Keys
+    READ ENTITIES OF yheader_r
+    ENTITY HeaderBD
+    ALL FIELDS WITH VALUE #( ( %tky-MaterialDocument = keys[ 1 ]-MaterialDocument
+                               %tky-DocumentYear     = keys[ 1 ]-DocumentYear ) )
+    RESULT DATA(lt_result4).
+
+    READ ENTITIES OF yheader_r
+    ENTITY HeaderBD
+    ALL FIELDS WITH VALUE #( ( MaterialDocument = keys[ 1 ]-MaterialDocument
+                               DocumentYear     = keys[ 1 ]-DocumentYear ) )
+    RESULT DATA(lt_result5).
+
+    READ ENTITIES OF yheader_r
+    ENTITY HeaderBD
+    ALL FIELDS WITH VALUE #( ( %tky = keys[ 1 ]-%tky ) )
+    RESULT DATA(lt_result6).
+
+
+    SELECT * FROM yheader_db
+    FOR ALL ENTRIES IN @keys
+    WHERE mblnr = @keys-MaterialDocument AND
+          mjahr = @keys-DocumentYear
+    INTO TABLE @gt_dheader.
   ENDMETHOD.
 
   METHOD read.          "Header Read
+    IF keys IS NOT INITIAL.
+      DATA : lt_header TYPE yheader_tt,
+             lt_item   TYPE yitem_tt,
+             lr_mblnr  TYPE ymblnr_tt,
+             lr_mjahr  TYPE ymjahr_tt,
+             lt_return TYPE ybapiret2.
 
+      LOOP AT keys ASSIGNING FIELD-SYMBOL(<lfs_key>).
+        APPEND VALUE #( sign = 'I' opti = 'EQ' low = <lfs_key>-MaterialDocument ) TO lr_mblnr.
+        APPEND VALUE #( sign = 'I' opti = 'EQ' low = <lfs_key>-DocumentYear )     TO lr_mjahr.
+      ENDLOOP.
+
+      IF lr_mblnr IS NOT INITIAL AND
+         lr_mjahr IS NOT INITIAL.
+        CALL FUNCTION 'YGOODS_MVMNT_READ_FM'
+          EXPORTING
+            mblnr  = lr_mblnr
+            mjahr  = lr_mjahr
+          IMPORTING
+            header = lt_header
+            item   = lt_item
+            return = lt_return.
+      ENDIF.
+
+      IF line_exists( lt_return[ type = 'E' ] ).
+        APPEND VALUE #( %tky = keys[ 1 ]-%tky ) TO failed-headerbd.
+      ELSE.
+        result = CORRESPONDING #( lt_header MAPPING MaterialDocument           = mblnr
+                                                    DocumentYear               = mjahr
+                                                    GoodsMovementCode          = gmcode
+                                                    MaterialDocumentHeaderText = bktxt
+                                                    ReceivingPlant             = rplant
+                                                    ReferenceDocument          = xblnr
+                                                    Supplier                   = lifnr ).
+      ENDIF.
+    ENDIF.
   ENDMETHOD.
 
   METHOD lock.          "Header Lock
@@ -140,13 +215,13 @@ CLASS ycl_crud_um IMPLEMENTATION.
           return = return.
 
 
-    APPEND VALUE #( materialdocument = mblnr
-                    documentyear     = mjahr
-                    %msg             = lcl_message=>get_instance( )->message( severity = COND #( WHEN return[ 1 ]-type EQ 'E'
-                                                                                                 THEN if_abap_behv_message=>severity-error
-                                                                                                 ELSE if_abap_behv_message=>severity-success )
-                                                                              text     = return[ 1 ]-message )
-                    ) TO reported-headerbd.
+      APPEND VALUE #( materialdocument = mblnr
+                      documentyear     = mjahr
+                      %msg             = lcl_message=>get_instance( )->message( severity = COND #( WHEN return[ 1 ]-type EQ 'E'
+                                                                                                   THEN if_abap_behv_message=>severity-error
+                                                                                                   ELSE if_abap_behv_message=>severity-success )
+                                                                                text     = return[ 1 ]-message )
+                      ) TO reported-headerbd.
     ENDIF.
 
     IF gt_dheader IS NOT INITIAL.
