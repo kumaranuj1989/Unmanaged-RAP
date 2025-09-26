@@ -1,0 +1,6 @@
+@EndUserText.label: 'Service Defination for Header'
+define service YHEADER_SD {
+  expose YHEADER_C  as HeaderSD;
+  expose YITEM_C    as ItemSD;
+  expose YSUBITEM_C as SubitemSD;
+}

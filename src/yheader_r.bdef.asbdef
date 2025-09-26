@@ -1,0 +1,56 @@
+unmanaged implementation in class zbp_header_r unique;
+strict ( 2 );
+
+define behavior for YHEADER_R alias HeaderBD
+late numbering
+lock master
+authorization master ( instance )
+etag master Lastchangedat
+{
+  create ( authorization : global );
+  update;
+  delete;
+  field ( readonly ) MaterialDocument, DocumentYear;
+  association _ITEM_H { create; }
+
+  mapping for yheader_db corresponding
+    {
+      MaterialDocument           = mblnr;
+      DocumentYear               = mjahr;
+      GoodsMovementCode          = gmcode;
+      MaterialDocumentHeaderText = bktxt;
+      ReceivingPlant             = rplant;
+      ReferenceDocument          = xblnr;
+      Supplier                   = lifnr;
+    }
+}
+
+define behavior for YITEM_R alias ItemBD
+late numbering
+lock dependent by _HEAD_I
+authorization dependent by _HEAD_I
+etag master Lastchangedat
+{
+  update;
+  delete;
+  field ( readonly ) MaterialDocument, DocumentYear, DocumentItem;
+  association _HEAD_I;
+
+  mapping for yitem_db corresponding
+    {
+      MaterialDocument        = mblnr;
+      DocumentYear            = mjahr;
+      DocumentItem            = zeile;
+      GoodsMovementReasonCode = grund;
+      GoodsMovementRefDocType = gmrdt;
+      GoodsMovementType       = bwart;
+      Material                = matnr;
+      Plant                   = splant;
+      PurchaseOrder           = ebeln;
+      PurchaseOrderItem       = ebelp;
+      IsCompletelyDelivered   = delv_inc;
+      QuantityInEntryUnit     = fkimg;
+      EntryUnit               = meins;
+      StorageLocation         = lgort;
+    }
+}

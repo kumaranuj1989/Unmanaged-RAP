@@ -1,0 +1,20 @@
+projection;
+strict ( 2 );
+
+define behavior for YHEADER_C alias HeaderP
+{
+  use create;
+  use update;
+  use delete;
+
+  use association _ITEM_H{create;}
+
+}
+
+define behavior for YITEM_C alias ItemP
+{
+  use update;
+  use delete;
+
+  use association _HEAD_I;
+}

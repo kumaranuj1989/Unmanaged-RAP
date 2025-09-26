@@ -1,0 +1,57 @@
+@Metadata.layer: #CUSTOMER
+@UI:{ headerInfo:{ typeName: 'Header',
+                   typeNamePlural: 'Headers',
+                   title:{ value: 'MaterialDocument',
+                           label: 'Header Title' },
+                   description:{ value: 'ReferenceDocument',
+                                 label: 'Header Descrption' }
+                         } }
+annotate entity YHEADER_C with
+{
+  @UI:{ facet: [{ id: 'Headerfacet', position: 10, label: 'Header Facet', purpose: #STANDARD, type: #IDENTIFICATION_REFERENCE  },
+                { id: 'Itemfacet',   position: 20, label: 'Item Facet',   purpose: #STANDARD, type: #LINEITEM_REFERENCE, targetElement: '_ITEM_H' } ] }
+  
+  
+  @UI:{
+     identification: [{ label: 'Material Document', position: 10  }],
+     lineItem: [{ label: 'Material Document', position: 10 }],
+     selectionField: [{ position: 10 }]
+    }
+  MaterialDocument;
+  @UI:{ 
+     lineItem: [{position: 20, label: 'Year'  }],
+     identification: [{position: 20, label: 'Year'  }],
+     selectionField: [{position: 20 }]
+     }
+  DocumentYear;
+  @UI:{
+     lineItem: [{position: 30, label: 'Reference Document'  }],
+     identification: [{position: 30, label: 'Reference Document'  }]
+     }
+  ReferenceDocument;
+  @UI:{
+     lineItem: [{position: 40, label: 'Supplier'  }],
+     identification: [{position: 40, label: 'Supplier'  }]
+     }
+  Supplier;
+  @UI:{
+     lineItem: [{position: 50, label: 'Goods Movement Code'  }],
+     identification: [{position: 50, label: 'Goods Movement Code'  }]
+     }
+  GoodsMovementCode;
+  @UI:{
+     lineItem: [{position: 60, label: 'Receiving Plant'  }],
+     identification: [{position: 60, label: 'Receiving Plant'  }]
+     }
+  ReceivingPlant;
+  @UI:{
+     lineItem: [{position: 70, label: 'Header Text'  }],
+     identification: [{position: 70, label: 'Header Text'  }]
+     }
+  MaterialDocumentHeaderText;
+  @UI.hidden: true
+  Lastchangedat;
+  @UI.hidden: true
+  Totallastchangedat;
+
+}
