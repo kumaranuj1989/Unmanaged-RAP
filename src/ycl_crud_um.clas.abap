@@ -18,7 +18,8 @@ CLASS ycl_crud_um DEFINITION
       tt_delete_keys     TYPE TABLE FOR DELETE            yheader_r,
       tt_read_keys       TYPE TABLE FOR READ IMPORT       yheader_r,
       tt_read_result     TYPE TABLE FOR READ RESULT       yheader_r,
-      tt_lock_keys       TYPE TABLE FOR KEY OF            yheader_r.
+      tt_lock_keys       TYPE TABLE FOR KEY OF            yheader_r,
+      tt_entities_cba    TYPE TABLE FOR CREATE yheader_r\\headerbd\_item_h.
 
 
 **********************************************************************
@@ -55,6 +56,12 @@ CLASS ycl_crud_um DEFINITION
       CHANGING  failed   TYPE tt_early_failed
                 reported TYPE tt_early_reported.
 
+    METHODS: cba_item
+      IMPORTING entities_cba TYPE tt_entities_cba
+      CHANGING  mapped       TYPE tt_early_mapped
+                failed       TYPE tt_early_failed
+                reported     TYPE tt_early_reported.
+
     METHODS:adjust_numbers
       CHANGING mapped   TYPE tt_late_mapped
                reported TYPE tt_late_reported.
@@ -80,12 +87,13 @@ ENDCLASS.
 
 
 CLASS ycl_crud_um IMPLEMENTATION.
+**********************************************************************
   METHOD factory.     "Create Instance of the class
 
     lo_api = ro_api = COND #( WHEN lo_api IS BOUND THEN lo_api
                               ELSE NEW #(  ) ).
   ENDMETHOD.
-
+**********************************************************************
   METHOD create.        "Header Create
     gt_header = CORRESPONDING #( entities MAPPING mblnr  = MaterialDocument
                                                   mjahr  = DocumentYear
@@ -94,17 +102,56 @@ CLASS ycl_crud_um IMPLEMENTATION.
                                                   rplant = ReceivingPlant
                                                   xblnr  = ReferenceDocument
                                                   lifnr  = Supplier  ).
+
+    gt_header = CORRESPONDING #( entities MAPPING FROM ENTITY ).
     IF gt_header IS NOT INITIAL.
       GET TIME STAMP FIELD DATA(ts).
       gt_header[ 1 ]-lastchangedat = ts.
       gt_header[ 1 ]-totallastchangedat = ts.
     ENDIF.
   ENDMETHOD.
-
+**********************************************************************
   METHOD update.        "Header Update
+    READ ENTITIES OF yheader_r
+    ENTITY HeaderBD
+    ALL FIELDS WITH VALUE #( ( %tky-MaterialDocument = entities[ 1 ]-MaterialDocument
+                               %tky-DocumentYear     = entities[ 1 ]-DocumentYear ) )
+    RESULT DATA(lt_result1).
 
+    READ ENTITIES OF yheader_r
+    ENTITY HeaderBD
+    ALL FIELDS WITH VALUE #( ( %tky = entities[ 1 ]-%tky ) )
+    RESULT DATA(lt_result2).
+
+    gt_header = CORRESPONDING #( lt_result2 MAPPING FROM ENTITY ).
+    IF gt_header IS NOT INITIAL.
+      GET TIME STAMP FIELD DATA(ts).
+
+      LOOP AT entities ASSIGNING FIELD-SYMBOL(<lfs_entities>).
+        ASSIGN gt_header[ mblnr = <lfs_entities>-MaterialDocument mjahr = <lfs_entities>-DocumentYear ] TO FIELD-SYMBOL(<lfs_header>).
+        IF <lfs_header> IS ASSIGNED.
+          IF <lfs_entities>-%control-GoodsMovementCode = if_abap_behv=>mk-on.
+            <lfs_header>-gmcode = <lfs_entities>-GoodsMovementCode.
+          ENDIF.
+          IF <lfs_entities>-%control-MaterialDocumentHeaderText = if_abap_behv=>mk-on.
+            <lfs_header>-bktxt = <lfs_entities>-MaterialDocumentHeaderText.
+          ENDIF.
+          IF <lfs_entities>-%control-ReceivingPlant = if_abap_behv=>mk-on.
+            <lfs_header>-rplant = <lfs_entities>-ReceivingPlant.
+          ENDIF.
+          IF <lfs_entities>-%control-ReferenceDocument = if_abap_behv=>mk-on.
+            <lfs_header>-xblnr = <lfs_entities>-ReferenceDocument.
+          ENDIF.
+          IF <lfs_entities>-%control-Supplier = if_abap_behv=>mk-on.
+            <lfs_header>-lifnr = <lfs_entities>-Supplier.
+          ENDIF.
+          <lfs_header>-lastchangedat = ts.
+          <lfs_header>-totallastchangedat = ts.
+        ENDIF.
+      ENDLOOP.
+    ENDIF.
   ENDMETHOD.
-
+**********************************************************************
   METHOD delete.        "Header Delete
     "When Multiple entries are available in Keys
     READ ENTITIES OF yheader_r
@@ -149,7 +196,7 @@ CLASS ycl_crud_um IMPLEMENTATION.
           mjahr = @keys-DocumentYear
     INTO TABLE @gt_dheader.
   ENDMETHOD.
-
+**********************************************************************
   METHOD read.          "Header Read
     IF keys IS NOT INITIAL.
       DATA : lt_header TYPE yheader_tt,
@@ -188,11 +235,15 @@ CLASS ycl_crud_um IMPLEMENTATION.
       ENDIF.
     ENDIF.
   ENDMETHOD.
-
+**********************************************************************
   METHOD lock.          "Header Lock
 
   ENDMETHOD.
+**********************************************************************
+  METHOD cba_item."Create By Association*************************
 
+  ENDMETHOD.
+**********************************************************************
   METHOD adjust_numbers.        "Adjust Numbers Saver
     IF mapped IS NOT INITIAL.
 
