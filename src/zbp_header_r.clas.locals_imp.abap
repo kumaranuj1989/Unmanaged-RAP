@@ -87,9 +87,17 @@ CLASS lhc_YHEADER_R IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD rba_Item.
+
   ENDMETHOD.
 
   METHOD cba_Item.
+    ycl_crud_um=>factory(  )->cba_item(
+      EXPORTING
+        entities_cba = entities_cba
+      CHANGING
+        mapped       = mapped
+        failed       = failed
+        reported     = reported ).
   ENDMETHOD.
 
 ENDCLASS.
@@ -115,12 +123,33 @@ ENDCLASS.
 CLASS lhc_itembd IMPLEMENTATION.
 
   METHOD update.
+    ycl_crud_um=>factory(  )->item_update(
+      EXPORTING
+        item_entities = entities
+      CHANGING
+        mapped   = mapped
+        failed   = failed
+        reported = reported ).
   ENDMETHOD.
 
   METHOD delete.
+   ycl_crud_um=>factory(  )->item_delete(
+     EXPORTING
+       item_keys = keys
+     CHANGING
+       mapped    = mapped
+       failed    = failed
+       reported  = reported ).
   ENDMETHOD.
 
   METHOD read.
+    ycl_crud_um=>factory(  )->item_read(
+      EXPORTING
+        keys     = keys
+      CHANGING
+        result   = result
+        failed   = failed
+        reported = reported ).
   ENDMETHOD.
 
   METHOD rba_Head.
