@@ -1,20 +1,26 @@
 projection;
 strict ( 2 );
 
-define behavior for YHEADER_C alias HeaderP
+define behavior for YHEADER_C alias HeaderBDP
 {
   use create;
   use update;
   use delete;
-
-  use association _ITEM_H{create;}
-
+  use association _ITEM_H { create; }
+  use association _SUBITEM_H { create; }
 }
 
-define behavior for YITEM_C alias ItemP
+define behavior for YITEM_C alias ItemBDP
 {
   use update;
   use delete;
-
   use association _HEAD_I;
+  use association _SUBITEM_I  { create; }
+}
+
+define behavior for YSUBITEM_C alias SubItemBDP
+{
+  use update;
+  use delete;
+  use association _HEAD_S;
 }

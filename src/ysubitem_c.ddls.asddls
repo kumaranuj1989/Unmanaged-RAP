@@ -12,5 +12,6 @@ define view entity YSUBITEM_C
       SerialDesc,
       Lastchangedat,
       Totallastchangedat,
+      _ITEM_S : redirected to YITEM_C,
       _HEAD_S : redirected to parent YHEADER_C
 }

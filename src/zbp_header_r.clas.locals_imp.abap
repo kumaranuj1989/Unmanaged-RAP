@@ -1,4 +1,4 @@
-CLASS lhc_YHEADER_R DEFINITION INHERITING FROM cl_abap_behavior_handler.
+CLASS lhc_HeaderBD DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
 
     METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
@@ -21,34 +21,42 @@ CLASS lhc_YHEADER_R DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS lock FOR LOCK
       IMPORTING keys FOR LOCK HeaderBD.
-    METHODS rba_item FOR READ
-      IMPORTING keys_rba FOR READ HeaderBD\_item_h FULL result_requested RESULT result LINK association_links.
 
-    METHODS cba_item FOR MODIFY
-      IMPORTING entities_cba FOR CREATE HeaderBD\_item_h.
+    METHODS rba_Item_h FOR READ
+      IMPORTING keys_rba FOR READ HeaderBD\_Item_h FULL result_requested RESULT result LINK association_links.
+
+    METHODS rba_Subitem_h FOR READ
+      IMPORTING keys_rba FOR READ HeaderBD\_Subitem_h FULL result_requested RESULT result LINK association_links.
+
+    METHODS cba_Item_h FOR MODIFY
+      IMPORTING entities_cba FOR CREATE HeaderBD\_Item_h.
+
+    METHODS cba_Subitem_h FOR MODIFY
+      IMPORTING entities_cba FOR CREATE HeaderBD\_Subitem_h.
 
 ENDCLASS.
 
-CLASS lhc_YHEADER_R IMPLEMENTATION.
+CLASS lhc_HeaderBD IMPLEMENTATION.
 
   METHOD get_instance_authorizations.
   ENDMETHOD.
 
   METHOD get_global_authorizations.
   ENDMETHOD.
-
+**********************************************************************
+*Header Create
   METHOD create.
-    ycl_crud_um=>factory(  )->create(
-        EXPORTING
-          entities = entities
-        CHANGING
-          mapped   = mapped
-          failed   = failed
-          reported = reported ).
+    ycl_crud_um=>factory(  )->header_create(
+          EXPORTING
+            entities = entities
+          CHANGING
+            mapped   = mapped
+            failed   = failed
+            reported = reported ).
   ENDMETHOD.
 
   METHOD update.
-    ycl_crud_um=>factory(  )->update(
+    ycl_crud_um=>factory(  )->header_update(
           EXPORTING
             entities = entities
           CHANGING
@@ -58,40 +66,36 @@ CLASS lhc_YHEADER_R IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD delete.
-    ycl_crud_um=>factory(  )->delete(
-          EXPORTING
-            keys     = keys
-          CHANGING
-            mapped   = mapped
-            failed   = failed
-            reported = reported ).
+    ycl_crud_um=>factory(  )->header_delete(
+      EXPORTING
+        keys     = keys
+      CHANGING
+        mapped   = mapped
+        failed   = failed
+        reported = reported ).
   ENDMETHOD.
 
   METHOD read.
-    ycl_crud_um=>factory(  )->read(
-       EXPORTING
-         keys     = keys
-       CHANGING
-         failed   = failed
-         reported = reported
-         result   = result ).
+    ycl_crud_um=>factory(  )->header_read(
+      EXPORTING
+        keys     = keys
+      CHANGING
+        result   = result
+        failed   = failed
+        reported = reported ).
   ENDMETHOD.
 
   METHOD lock.
-    ycl_crud_um=>factory(  )->lock(
-        EXPORTING
-          keys     = keys
-        CHANGING
-          failed   = failed
-          reported = reported ).
   ENDMETHOD.
 
-  METHOD rba_Item.
-
+  METHOD rba_Item_h.
   ENDMETHOD.
 
-  METHOD cba_Item.
-    ycl_crud_um=>factory(  )->cba_item(
+  METHOD rba_Subitem_h.
+  ENDMETHOD.
+
+  METHOD cba_Item_h.
+    ycl_crud_um=>factory(  )->item_create(
       EXPORTING
         entities_cba = entities_cba
       CHANGING
@@ -100,11 +104,16 @@ CLASS lhc_YHEADER_R IMPLEMENTATION.
         reported     = reported ).
   ENDMETHOD.
 
+  METHOD cba_Subitem_h.
+  ENDMETHOD.
+
 ENDCLASS.
 
-CLASS lhc_itembd DEFINITION INHERITING FROM cl_abap_behavior_handler.
-
+CLASS lhc_ItemBD DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
+
+    METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
+      IMPORTING keys REQUEST requested_authorizations FOR ItemBD RESULT result.
 
     METHODS update FOR MODIFY
       IMPORTING entities FOR UPDATE ItemBD.
@@ -115,31 +124,40 @@ CLASS lhc_itembd DEFINITION INHERITING FROM cl_abap_behavior_handler.
     METHODS read FOR READ
       IMPORTING keys FOR READ ItemBD RESULT result.
 
-    METHODS rba_Head FOR READ
-      IMPORTING keys_rba FOR READ ItemBD\_head_i FULL result_requested RESULT result LINK association_links.
+    METHODS rba_Head_i FOR READ
+      IMPORTING keys_rba FOR READ ItemBD\_Head_i FULL result_requested RESULT result LINK association_links.
+
+    METHODS rba_Subitem_i FOR READ
+      IMPORTING keys_rba FOR READ ItemBD\_Subitem_i FULL result_requested RESULT result LINK association_links.
+
+    METHODS cba_Subitem_i FOR MODIFY
+      IMPORTING entities_cba FOR CREATE ItemBD\_Subitem_i.
 
 ENDCLASS.
 
-CLASS lhc_itembd IMPLEMENTATION.
+CLASS lhc_ItemBD IMPLEMENTATION.
+
+  METHOD get_instance_authorizations.
+  ENDMETHOD.
 
   METHOD update.
     ycl_crud_um=>factory(  )->item_update(
       EXPORTING
         item_entities = entities
       CHANGING
-        mapped   = mapped
-        failed   = failed
-        reported = reported ).
+        mapped        = mapped
+        failed        = failed
+        reported      = reported ).
   ENDMETHOD.
 
   METHOD delete.
-   ycl_crud_um=>factory(  )->item_delete(
-     EXPORTING
-       item_keys = keys
-     CHANGING
-       mapped    = mapped
-       failed    = failed
-       reported  = reported ).
+    ycl_crud_um=>factory(  )->item_delete(
+      EXPORTING
+        item_keys = keys
+      CHANGING
+        mapped    = mapped
+        failed    = failed
+        reported  = reported ).
   ENDMETHOD.
 
   METHOD read.
@@ -152,7 +170,46 @@ CLASS lhc_itembd IMPLEMENTATION.
         reported = reported ).
   ENDMETHOD.
 
-  METHOD rba_Head.
+  METHOD rba_Head_i.
+  ENDMETHOD.
+
+  METHOD rba_Subitem_i.
+  ENDMETHOD.
+
+  METHOD cba_Subitem_i.
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lhc_SubItemBD DEFINITION INHERITING FROM cl_abap_behavior_handler.
+  PRIVATE SECTION.
+
+    METHODS update FOR MODIFY
+      IMPORTING entities FOR UPDATE SubItemBD.
+
+    METHODS delete FOR MODIFY
+      IMPORTING keys FOR DELETE SubItemBD.
+
+    METHODS read FOR READ
+      IMPORTING keys FOR READ SubItemBD RESULT result.
+
+    METHODS rba_Head_s FOR READ
+      IMPORTING keys_rba FOR READ SubItemBD\_Head_s FULL result_requested RESULT result LINK association_links.
+
+ENDCLASS.
+
+CLASS lhc_SubItemBD IMPLEMENTATION.
+
+  METHOD update.
+  ENDMETHOD.
+
+  METHOD delete.
+  ENDMETHOD.
+
+  METHOD read.
+  ENDMETHOD.
+
+  METHOD rba_Head_s.
   ENDMETHOD.
 
 ENDCLASS.
@@ -183,16 +240,12 @@ CLASS lsc_YHEADER_R IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD adjust_numbers.
-    ycl_crud_um=>factory(  )->adjust_numbers(
-        CHANGING
-          mapped   = mapped
-          reported = reported ).
   ENDMETHOD.
 
   METHOD save.
     ycl_crud_um=>factory(  )->save(
-        CHANGING
-          reported = reported ).
+          CHANGING
+            reported = reported ).
   ENDMETHOD.
 
   METHOD cleanup.

@@ -22,5 +22,6 @@ define view entity YITEM_C
       IsCompletelyDelivered,
       Lastchangedat,
       Totallastchangedat,
-      _HEAD_I : redirected to parent YHEADER_C
+      _HEAD_I : redirected to parent YHEADER_C,
+     _SUBITEM_I : redirected to YSUBITEM_C
 }

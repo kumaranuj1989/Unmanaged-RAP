@@ -8,60 +8,59 @@ CLASS ycl_crud_um DEFINITION
 *  Type Declaration
 **********************************************************************
     TYPES:
-      tt_early_mapped         TYPE RESPONSE FOR MAPPED EARLY   yheader_r,     "Mapped
-      tt_early_failed         TYPE RESPONSE FOR FAILED EARLY   yheader_r,     "Failed
-      tt_early_reported       TYPE RESPONSE FOR REPORTED EARLY yheader_r,     "Reported
-      tt_late_mapped          TYPE RESPONSE FOR MAPPED LATE    yheader_r,
-      tt_late_reported        TYPE RESPONSE FOR REPORTED LATE  yheader_r,
-      tt_create_entities      TYPE TABLE FOR CREATE            yheader_r,
-      tt_update_entities      TYPE TABLE FOR UPDATE            yheader_r,
-      tt_delete_keys          TYPE TABLE FOR DELETE            yheader_r,
-      tt_read_keys            TYPE TABLE FOR READ IMPORT       yheader_r,
-      tt_read_result          TYPE TABLE FOR READ RESULT       yheader_r,
-      tt_lock_keys            TYPE TABLE FOR KEY OF            yheader_r,
-      tt_entities_cba         TYPE TABLE FOR CREATE            yheader_r\\headerbd\_item_h,
-      tt_update_item_entities TYPE TABLE FOR UPDATE            yheader_r\\itembd,
-      tt_item_keys            TYPE TABLE FOR READ IMPORT       yheader_r\\itembd,
-      tt_item_read_result     TYPE TABLE FOR READ RESULT       yheader_r\\itembd,
-      tt_delete_item_keys     TYPE TABLE FOR DELETE            yheader_r\\itembd.
-
+      tt_early_mapped           TYPE RESPONSE FOR MAPPED EARLY   yheader_r,     "Mapped
+      tt_early_failed           TYPE RESPONSE FOR FAILED EARLY   yheader_r,     "Failed
+      tt_early_reported         TYPE RESPONSE FOR REPORTED EARLY yheader_r,     "Reported
+      tt_late_mapped            TYPE RESPONSE FOR MAPPED LATE    yheader_r,
+      tt_late_reported          TYPE RESPONSE FOR REPORTED LATE  yheader_r,
+      tt_header_create_entities TYPE TABLE FOR CREATE            yheader_r\\headerbd,
+      tt_update_create_entities TYPE TABLE FOR UPDATE            yheader_r\\headerbd,
+      tt_header_delete_keys     TYPE TABLE FOR DELETE            yheader_r\\headerbd,
+      tt_header_read_keys       TYPE TABLE FOR READ IMPORT       yheader_r\\headerbd,
+      tt_header_read_result     TYPE TABLE FOR READ RESULT       yheader_r\\headerbd,
+      tt_header_lock_keys       TYPE TABLE FOR KEY OF            yheader_r\\headerbd,
+      tt_item_create_entities   TYPE TABLE FOR CREATE            yheader_r\\headerbd\_item_h,
+      tt_update_item_entities   TYPE TABLE FOR UPDATE            yheader_r\\itembd,
+      tt_item_read_keys         TYPE TABLE FOR READ IMPORT       yheader_r\\itembd,
+      tt_item_read_result       TYPE TABLE FOR READ RESULT       yheader_r\\itembd,
+      tt_delete_item_keys       TYPE TABLE FOR DELETE            yheader_r\\itembd.
 
 **********************************************************************
 *   Method Declaration
 **********************************************************************
     CLASS-METHODS factory RETURNING VALUE(ro_api) TYPE REF TO ycl_crud_um.
 
-    METHODS:Create
-      IMPORTING entities TYPE tt_create_entities
+    METHODS:Header_Create
+      IMPORTING entities TYPE tt_header_create_entities
       CHANGING  mapped   TYPE tt_early_mapped
                 failed   TYPE tt_early_failed
                 reported TYPE tt_early_reported.
 
-    METHODS:update
-      IMPORTING entities TYPE tt_update_entities
+    METHODS:Header_update
+      IMPORTING entities TYPE tt_update_create_entities
       CHANGING  mapped   TYPE tt_early_mapped
                 failed   TYPE tt_early_failed
                 reported TYPE tt_early_reported.
 
-    METHODS:delete
-      IMPORTING keys     TYPE tt_delete_keys
+    METHODS:Header_delete
+      IMPORTING keys     TYPE tt_header_delete_keys
       CHANGING  mapped   TYPE tt_early_mapped
                 failed   TYPE tt_early_failed
                 reported TYPE tt_early_reported.
 
-    METHODS:read
-      IMPORTING keys     TYPE tt_read_keys
-      CHANGING  result   TYPE tt_read_result
+    METHODS:Header_read
+      IMPORTING keys     TYPE tt_header_read_keys
+      CHANGING  result   TYPE tt_header_read_result
                 failed   TYPE tt_early_failed
                 reported TYPE tt_early_reported.
 
-    METHODS:lock
-      IMPORTING keys     TYPE tt_lock_keys
+    METHODS:header_lock
+      IMPORTING keys     TYPE tt_header_lock_keys
       CHANGING  failed   TYPE tt_early_failed
                 reported TYPE tt_early_reported.
 
-    METHODS: cba_item
-      IMPORTING entities_cba TYPE tt_entities_cba
+    METHODS: item_create
+      IMPORTING entities_cba TYPE tt_item_create_entities
       CHANGING  mapped       TYPE tt_early_mapped
                 failed       TYPE tt_early_failed
                 reported     TYPE tt_early_reported.
@@ -73,7 +72,7 @@ CLASS ycl_crud_um DEFINITION
                 reported      TYPE tt_early_reported.
 
     METHODS : item_read
-      IMPORTING keys     TYPE tt_item_keys
+      IMPORTING keys     TYPE tt_item_read_keys
       CHANGING  result   TYPE tt_item_read_result
                 failed   TYPE tt_early_failed
                 reported TYPE tt_early_reported.
@@ -116,7 +115,7 @@ CLASS ycl_crud_um IMPLEMENTATION.
                               ELSE NEW #(  ) ).
   ENDMETHOD.
 **********************************************************************
-  METHOD create.        "Header Create
+  METHOD header_create.        "Header Create
     gt_header = CORRESPONDING #( entities MAPPING mblnr  = MaterialDocument
                                                   mjahr  = DocumentYear
                                                   gmcode = GoodsMovementCode
@@ -133,7 +132,7 @@ CLASS ycl_crud_um IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 **********************************************************************
-  METHOD update.        "Header Update
+  METHOD header_update.        "Header Update
     READ ENTITIES OF yheader_r
     ENTITY HeaderBD
     ALL FIELDS WITH VALUE #( ( %tky-MaterialDocument = entities[ 1 ]-MaterialDocument
@@ -174,7 +173,7 @@ CLASS ycl_crud_um IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 **********************************************************************
-  METHOD delete.        "Header Delete
+  METHOD header_delete.        "Header Delete
     "When Multiple entries are available in Keys
     READ ENTITIES OF yheader_r
     ENTITY HeaderBD
@@ -225,7 +224,7 @@ CLASS ycl_crud_um IMPLEMENTATION.
     INTO TABLE @gt_dheader.
   ENDMETHOD.
 **********************************************************************
-  METHOD read.          "Header Read
+  METHOD header_read.          "Header Read
     IF keys IS NOT INITIAL.
       DATA : lt_header TYPE yheader_tt,
              lt_item   TYPE yitem_tt,
@@ -264,11 +263,11 @@ CLASS ycl_crud_um IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 **********************************************************************
-  METHOD lock.          "Header Lock
+  METHOD header_lock.          "Header Lock
 
   ENDMETHOD.
 **********************************************************************
-  METHOD cba_item."Create By Association*************************
+  METHOD item_create.       "Item Create By Association w.r.t Header
     READ ENTITIES OF yheader_r
       ENTITY HeaderBD
       ALL FIELDS WITH VALUE #( FOR ls_entities_cba IN entities_cba ( %tky = ls_entities_cba-%tky ) )
@@ -388,7 +387,7 @@ CLASS ycl_crud_um IMPLEMENTATION.
       IF line_exists( lt_return[ type = 'E' ] ).
         APPEND VALUE #( %tky = keys[ 1 ]-%tky ) TO failed-itembd.
       ELSE.
-        IF keys[ 1 ]-DocumentItem ne space.
+        IF keys[ 1 ]-DocumentItem NE space.
           DELETE lt_item WHERE zeile NE keys[ 1 ]-DocumentItem.
         ENDIF.
         result = CORRESPONDING #( lt_item MAPPING MaterialDocument        = mblnr
@@ -420,6 +419,7 @@ CLASS ycl_crud_um IMPLEMENTATION.
 
     gt_ditem = CORRESPONDING #( lt_result MAPPING FROM ENTITY ).
   ENDMETHOD.
+
 **********************************************************************
   METHOD adjust_numbers.        "Adjust Numbers Saver
     IF mapped IS NOT INITIAL.

@@ -17,6 +17,6 @@ define root view entity YHEADER_C
       MaterialDocumentHeaderText,
       Lastchangedat,
       Totallastchangedat,
-      _ITEM_H : redirected to composition child YITEM_C,
+      _ITEM_H    : redirected to composition child YITEM_C,
       _SUBITEM_H : redirected to composition child YSUBITEM_C
 }

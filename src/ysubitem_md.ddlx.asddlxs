@@ -1,0 +1,29 @@
+@Metadata.layer: #CUSTOMER
+@UI:{ headerInfo:{ typeName: 'Item Header',
+                   typeNamePlural: 'Items header',
+                   title.value: 'DocumentItem',
+                   description.value: 'Serial' } }
+annotate entity YSUBITEM_C with
+{
+  @UI:{ facet: [{ id: 'Serialfacet1',    position: 10, label: 'Serial Facet1',  purpose: #STANDARD, type: #IDENTIFICATION_REFERENCE  } ] }
+
+  @UI:{ lineItem: [{ label: 'Material Document', position: 10 }],
+        identification: [{ label: 'Material Document', position: 10  }]}
+  MaterialDocument;
+  @UI:{ lineItem: [{ label: 'Year', position: 20 }],
+        identification: [{position: 20, label: 'Year'  }] }
+  DocumentYear;
+  @UI:{ lineItem: [{ label: 'Item', position: 30 }],
+        identification: [{position: 30, label: 'Item'  }] }
+  DocumentItem;
+  @UI:{ lineItem: [{ label: 'Serial', position: 40 }],
+        identification: [{position: 40, label: 'Serial'  }] }
+  Serial;
+  @UI:{ lineItem: [{ label: 'Serial Description', position: 50 }],
+        identification: [{position: 50, label: 'Serial Description'  }] }
+  SerialDesc;
+  @UI.hidden: true
+  Lastchangedat;
+  @UI.hidden: true
+  Totallastchangedat;
+}

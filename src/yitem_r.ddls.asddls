@@ -9,8 +9,11 @@
 }
 define view entity YITEM_R
   as select from YITEM_I
-  association to parent YHEADER_R as _HEAD_I on  $projection.MaterialDocument = _HEAD_I.MaterialDocument
-                                             and $projection.DocumentYear     = _HEAD_I.DocumentYear
+  association        to parent YHEADER_R as _HEAD_I    on  $projection.MaterialDocument = _HEAD_I.MaterialDocument
+                                                       and $projection.DocumentYear     = _HEAD_I.DocumentYear
+  association [1..*] to YSUBITEM_R       as _SUBITEM_I on  $projection.MaterialDocument = _SUBITEM_I.MaterialDocument
+                                                       and $projection.DocumentYear     = _SUBITEM_I.DocumentYear
+                                                       and $projection.DocumentItem     = _SUBITEM_I.DocumentItem
 {
   key MaterialDocument,
   key DocumentYear,
@@ -29,5 +32,6 @@ define view entity YITEM_R
       IsCompletelyDelivered,
       Lastchangedat,
       Totallastchangedat,
-      _HEAD_I
+      _HEAD_I,
+      _SUBITEM_I
 }

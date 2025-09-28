@@ -8,7 +8,9 @@
 "ASSOCIATED":
 [
 "YHEADER_C",
-"YHEADER_R"
+"YHEADER_R",
+"YSUBITEM_C",
+"YSUBITEM_R"
 ],
 "BASE":
 [

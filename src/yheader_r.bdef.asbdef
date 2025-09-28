@@ -12,6 +12,7 @@ etag master Lastchangedat
   delete;
   field ( readonly ) MaterialDocument, DocumentYear;
   association _ITEM_H { create; }
+  association _SUBITEM_H { create; }
 
   mapping for yheader_db corresponding
     {
@@ -35,6 +36,7 @@ etag master Lastchangedat
   delete;
   field ( readonly ) MaterialDocument, DocumentYear, DocumentItem;
   association _HEAD_I;
+  association _SUBITEM_I { create; }
 
   mapping for yitem_db corresponding
     {
@@ -52,5 +54,28 @@ etag master Lastchangedat
       QuantityInEntryUnit     = fkimg;
       EntryUnit               = meins;
       StorageLocation         = lgort;
+    }
+}
+
+define behavior for YSUBITEM_R alias SubItemBD
+late numbering
+lock dependent by _HEAD_S
+authorization dependent by _HEAD_S
+etag master Lastchangedat
+{
+  update;
+  delete;
+  field ( readonly ) MaterialDocument, DocumentYear, DocumentItem, Serial;
+  association _HEAD_S;
+
+  mapping for ysubitem_db corresponding
+    {
+      MaterialDocument   = mblnr;
+      DocumentYear       = mjahr;
+      DocumentItem       = zeile;
+      Serial             = serial;
+      SerialDesc         = serial_desc;
+      Lastchangedat      = lastchangedat;
+      Totallastchangedat = totallastchangedat;
     }
 }
