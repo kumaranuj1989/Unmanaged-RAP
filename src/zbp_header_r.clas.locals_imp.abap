@@ -54,7 +54,8 @@ CLASS lhc_HeaderBD IMPLEMENTATION.
             failed   = failed
             reported = reported ).
   ENDMETHOD.
-
+**********************************************************************
+*Header Update
   METHOD update.
     ycl_crud_um=>factory(  )->header_update(
           EXPORTING
@@ -64,7 +65,8 @@ CLASS lhc_HeaderBD IMPLEMENTATION.
             failed   = failed
             reported = reported ).
   ENDMETHOD.
-
+**********************************************************************
+*Header Delete
   METHOD delete.
     ycl_crud_um=>factory(  )->header_delete(
       EXPORTING
@@ -74,7 +76,8 @@ CLASS lhc_HeaderBD IMPLEMENTATION.
         failed   = failed
         reported = reported ).
   ENDMETHOD.
-
+**********************************************************************
+*Header Read
   METHOD read.
     ycl_crud_um=>factory(  )->header_read(
       EXPORTING
@@ -84,16 +87,20 @@ CLASS lhc_HeaderBD IMPLEMENTATION.
         failed   = failed
         reported = reported ).
   ENDMETHOD.
-
+**********************************************************************
+*Header Lock
   METHOD lock.
   ENDMETHOD.
-
+**********************************************************************
+*Item Read w.r.t to header
   METHOD rba_Item_h.
   ENDMETHOD.
-
+**********************************************************************
+*Sub Item Read w.r.t to header
   METHOD rba_Subitem_h.
   ENDMETHOD.
-
+**********************************************************************
+*Item Create w.r.t to header
   METHOD cba_Item_h.
     ycl_crud_um=>factory(  )->item_create(
       EXPORTING
@@ -103,7 +110,8 @@ CLASS lhc_HeaderBD IMPLEMENTATION.
         failed       = failed
         reported     = reported ).
   ENDMETHOD.
-
+**********************************************************************
+*Sub Item Create w.r.t to header
   METHOD cba_Subitem_h.
   ENDMETHOD.
 
@@ -139,7 +147,8 @@ CLASS lhc_ItemBD IMPLEMENTATION.
 
   METHOD get_instance_authorizations.
   ENDMETHOD.
-
+**********************************************************************
+*Item Update
   METHOD update.
     ycl_crud_um=>factory(  )->item_update(
       EXPORTING
@@ -149,7 +158,8 @@ CLASS lhc_ItemBD IMPLEMENTATION.
         failed        = failed
         reported      = reported ).
   ENDMETHOD.
-
+**********************************************************************
+*Item Delete
   METHOD delete.
     ycl_crud_um=>factory(  )->item_delete(
       EXPORTING
@@ -159,7 +169,8 @@ CLASS lhc_ItemBD IMPLEMENTATION.
         failed    = failed
         reported  = reported ).
   ENDMETHOD.
-
+**********************************************************************
+*Item Read
   METHOD read.
     ycl_crud_um=>factory(  )->item_read(
       EXPORTING
@@ -169,13 +180,16 @@ CLASS lhc_ItemBD IMPLEMENTATION.
         failed   = failed
         reported = reported ).
   ENDMETHOD.
-
+**********************************************************************
+*Header read w.r.t Item
   METHOD rba_Head_i.
   ENDMETHOD.
-
+**********************************************************************
+*Sub Item read w.r.t Item
   METHOD rba_Subitem_i.
   ENDMETHOD.
-
+**********************************************************************
+*Sub Item Create w.r.t Item
   METHOD cba_Subitem_i.
   ENDMETHOD.
 
@@ -199,16 +213,20 @@ CLASS lhc_SubItemBD DEFINITION INHERITING FROM cl_abap_behavior_handler.
 ENDCLASS.
 
 CLASS lhc_SubItemBD IMPLEMENTATION.
-
+**********************************************************************
+*Sub Item Update
   METHOD update.
   ENDMETHOD.
-
+**********************************************************************
+*Sub Item Delete
   METHOD delete.
   ENDMETHOD.
-
+**********************************************************************
+*Sub Item Read
   METHOD read.
   ENDMETHOD.
-
+**********************************************************************
+*Header read w.r.t Sub Item
   METHOD rba_Head_s.
   ENDMETHOD.
 
